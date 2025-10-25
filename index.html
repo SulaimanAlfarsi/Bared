@@ -3,72 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bared</title>
+    <meta name="description" content="Bared Ice Tea - Premium refreshing cold tea drinks with natural flavors including Raspberry, Mango, and Peach Passion">
+    <meta name="keywords" content="ice tea, cold tea, refreshing drinks, natural flavors, Bared, premium tea">
+    <meta name="author" content="Bared">
+    <meta property="og:title" content="Bared Ice Tea - Premium Refreshing Drinks">
+    <meta property="og:description" content="Discover our premium ice tea collection with natural flavors. Raspberry & Pomegranate, Mango, and Peach & Passion varieties.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <title>Bared Ice Tea - Premium Refreshing Drinks</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unpkg.com/boxicons@latest/css/boxicons.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=MuseoModerno:ital,wght@0,200;0,400;0,500;0,600;0,700;0,800;1,300&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,200;1,500&family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=REM:ital,wght@0,200;1,300;1,400;1,500&family=Titillium+Web:wght@200;400;600;700&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="pic/SL.png">
+    <link rel="apple-touch-icon" href="pic/SL.png">
+    <meta name="theme-color" content="#0ea5e9">
+    <meta name="msapplication-TileColor" content="#0ea5e9">
 </head>
 <body>
 
-<header>
-    <a href="#" class="logo">
-        <img src="pic/SL.png" alt="">
-    </a>
-    <ul class="navlist">
-        <li> <a href="" class="active">Home</a></li>
-        <li> <a href="" >About</a></li>
-        <li> <a href="" >Bared</a></li>
-        <li> <a href="" >Contact</a></li>
-    </ul>
-    <div class="h-main">
-        <a href="" class="h-btn">Buy Now</a>
-        <div class="bx bx-menu" id='menu-icon'></div>
-        <div class="bx bx-moon" id='darkmode'></div>
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loading-overlay">
+    <div class="loading-spinner"></div>
+</div>
 
-    </div>
+<header role="banner">
+    <nav class="navbar" role="navigation" aria-label="Main navigation">
+        <a href="#" class="logo" aria-label="Bared Home">
+            <img src="pic/SL.png" alt="Bared Logo" width="100" height="100">
+        </a>
+        <ul class="navlist" role="menubar">
+            <li role="none"> <a href="#home" class="active" role="menuitem" aria-current="page">Home</a></li>
+            <li role="none"> <a href="#about" role="menuitem">About</a></li>
+            <li role="none"> <a href="#products" role="menuitem">Products</a></li>
+            <li role="none"> <a href="#contact" role="menuitem">Contact</a></li>
+        </ul>
+        <div class="h-main">
+            <a href="#buy" class="h-btn" role="button">Buy Now</a>
+            <button class="bx bx-menu" id='menu-icon' aria-label="Toggle menu" aria-expanded="false"></button>
+            <button class="bx bx-moon" id='darkmode' aria-label="Toggle dark mode"></button>
+        </div>
+    </nav>
 </header>
 
-<br><br><br><br><br><br><br><br>
+<main>
+    <section id="home" class="hero" aria-labelledby="hero-title">
+        <div class="hero-text">
+            <h1 id="hero-title">Bared</h1>
+            <h2>ICE TEA</h2>
+            <p>Premium cold tea, or iced tea, is a cooling and refreshing drink made by chilling brewed tea with ice, often customized to taste with natural flavors.</p>
+            <div class='hero-in' role="list" aria-label="Product flavors">
+                <article class="box" role="listitem">
+                    <h3>Raspberry and Pomegranate</h3>
+                    <h4>Bared</h4>
+                    <img src="pic/tot.png" alt="Raspberry and Pomegranate ice tea bottle" loading="lazy">
+                </article>
 
-<section class="hero">
-    <div class="hero-text">
-        <h1>Bared</h1>
-        <h4>ICE TEA</h4>
-        <p>cold tea, or iced tea, is a cooling and refreshing drink made by chilling brewed tea with ice, often customized to taste.</p>
-        <div class='hero-in'>
-            <div class="box">
-                <h3>Raspberry and Pomegranate</h3>
-                <h5>Bared</h5>
-                <img src="pic/tot.png" alt="">
-            </div>
+                <article class="box" role="listitem">
+                    <h3>Mango</h3>
+                    <h4>Bared</h4>
+                    <img src="pic/mango.png" alt="Mango ice tea bottle" loading="lazy">
+                </article>
 
-            <div class="box">
-                <h3>Mango</h3>
-                <h5>Bared</h5>
-                <img src="pic/mango.png" alt="">
-            </div>
-
-            <div class="box">
-                <h3>Peach and Passion</h3>
-                <h5>Bared</h5>
-                <img src="pic/p_and_p.png" alt="">
+                <article class="box" role="listitem">
+                    <h3>Peach and Passion</h3>
+                    <h4>Bared</h4>
+                    <img src="pic/p_and_p.png" alt="Peach and Passion ice tea bottle" loading="lazy">
+                </article>
             </div>
         </div>
+        
+        <div class="hero-img">
+            <img src="pic/p_and_p.png" alt="Featured Bared ice tea bottle" loading="eager">
+        </div>
+    </section>
+
+    <section id="about" class="about-section" aria-labelledby="about-title">
+        <div class="container">
+            <h2 id="about-title">About Bared</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <p>Bared Ice Tea represents the perfect fusion of tradition and innovation. We craft premium iced tea beverages using the finest natural ingredients, delivering refreshing taste experiences that invigorate your senses.</p>
+                    <p>Our commitment to quality ensures every bottle delivers the authentic taste of freshly brewed tea, enhanced with carefully selected natural flavors that create the perfect balance of sweetness and refreshment.</p>
+                </div>
+                <div class="about-features">
+                    <div class="feature">
+                        <i class="bx bx-leaf"></i>
+                        <h3>100% Natural</h3>
+                        <p>Made with natural ingredients and no artificial preservatives</p>
+                    </div>
+                    <div class="feature">
+                        <i class="bx bx-droplet"></i>
+                        <h3>Refreshing</h3>
+                        <p>Perfectly chilled for maximum refreshment</p>
+                    </div>
+                    <div class="feature">
+                        <i class="bx bx-heart"></i>
+                        <h3>Healthy Choice</h3>
+                        <p>Low calorie, antioxidant-rich beverage</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="products" class="products-section" aria-labelledby="products-title">
+        <div class="container">
+            <h2 id="products-title">Our Products</h2>
+            <div class="products-grid">
+                <article class="product-card">
+                    <img src="pic/tot.png" alt="Raspberry and Pomegranate ice tea" loading="lazy">
+                    <div class="product-info">
+                        <h3>Raspberry & Pomegranate</h3>
+                        <p>A delightful blend of tart raspberry and sweet pomegranate, creating a perfectly balanced fruity experience.</p>
+                        <div class="product-price">1.50 OMR</div>
+                    </div>
+                </article>
+                <article class="product-card">
+                    <img src="pic/mango.png" alt="Mango ice tea" loading="lazy">
+                    <div class="product-info">
+                        <h3>Mango</h3>
+                        <p>Tropical mango flavor that transports you to paradise with every sip.</p>
+                        <div class="product-price">1.50 OMR</div>
+                    </div>
+                </article>
+                <article class="product-card">
+                    <img src="pic/p_and_p.png" alt="Peach and Passion ice tea" loading="lazy">
+                    <div class="product-info">
+                        <h3>Peach & Passion</h3>
+                        <p>A harmonious combination of sweet peach and exotic passion fruit.</p>
+                        <div class="product-price">1.50 OMR</div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="contact-section" aria-labelledby="contact-title">
+        <div class="container">
+            <h2 id="contact-title">Get In Touch</h2>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h3>Contact Information</h3>
+                    <div class="contact-item">
+                        <i class="bx bx-envelope"></i>
+                        <span>info@bared.com</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="bx bx-phone"></i>
+                        <span>+1 (555) 123-4567</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="bx bx-map"></i>
+                        <span>123 Tea Street, Refreshment City, RC 12345</span>
+                    </div>
+                </div>
+                <form class="contact-form" aria-label="Contact form">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="footer" role="contentinfo">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Bared</h3>
+                <p>Premium ice tea beverages crafted with natural ingredients for the perfect refreshment experience.</p>
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook"><i class="bx bxl-facebook"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="bx bxl-instagram"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="bx bxl-twitter"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="bx bxl-linkedin"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#products">Products</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Products</h4>
+                <ul>
+                    <li><a href="#products">Raspberry & Pomegranate</a></li>
+                    <li><a href="#products">Mango</a></li>
+                    <li><a href="#products">Peach & Passion</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact Info</h4>
+                <p><i class="bx bx-envelope"></i> info@bared.com</p>
+                <p><i class="bx bx-phone"></i> +1 (555) 123-4567</p>
+                <p><i class="bx bx-map"></i> 123 Tea Street, Refreshment City</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Bared. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+        </div>
     </div>
-    
-    <div class="hero-img">
-        <img src="pic/p_and_p.png" alt="">
-    </div>
-</section>
+</footer>
 
 
 
 
 
-<div class="down-arrow">
+<div class="down-arrow" aria-label="Scroll down">
     <i class="bx bx-down-arrow-alt"></i>
 </div>
 
