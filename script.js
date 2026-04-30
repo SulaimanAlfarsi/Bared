@@ -1,250 +1,285 @@
 /**
- * Modern JavaScript for Bared Ice Tea Website
- * Features: Dark mode, mobile menu, smooth scrolling, form handling, animations
+ * Bared Ice Tea Website
+ * Features: flavor themes, light/dark mode, mobile menu, form handling, GSAP animations
  */
 
 class BaredWebsite {
     constructor() {
-        this.darkMode = false;
+        this.flavors = [
+            {
+                name: 'raspberry',
+                label: 'Raspberry & Pomegranate',
+                heroImage: 'pic/tot.png',
+                themeColor: '#d91f5c'
+            },
+            {
+                name: 'mango',
+                label: 'Mango',
+                heroImage: 'pic/mango.png',
+                themeColor: '#ea580c'
+            },
+            {
+                name: 'peach',
+                label: 'Peach & Passion',
+                heroImage: 'pic/p_and_p.png',
+                themeColor: '#0284c7'
+            }
+        ];
+
+        this.currentFlavor = this.flavors[0];
+        this.colorMode = 'light';
         this.mobileMenuOpen = false;
+        this.reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         this.init();
     }
 
     init() {
+        this.loadPreferences();
         this.setupEventListeners();
-        this.initializeScrollReveal();
         this.setupFormHandling();
         this.setupSmoothScrolling();
-        this.setupIntersectionObserver();
         this.setupImageLoading();
-        this.loadTheme();
+        this.setupGsapAnimations();
         this.hideLoadingOverlay();
     }
 
     setupEventListeners() {
-        // Dark mode toggle
-        const darkModeBtn = document.querySelector('#darkmode');
-        if (darkModeBtn) {
-            darkModeBtn.addEventListener('click', () => this.toggleDarkMode());
+        document.querySelectorAll('[data-flavor]').forEach(control => {
+            control.addEventListener('click', () => {
+                this.setFlavor(control.dataset.flavor, true);
+                this.savePreferences();
+            });
+        });
+
+        const themeToggle = document.querySelector('#theme-toggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                this.setColorMode(this.colorMode === 'light' ? 'dark' : 'light', true);
+                this.savePreferences();
+            });
         }
 
-        // Mobile menu toggle
         const menuIcon = document.querySelector('#menu-icon');
         const navList = document.querySelector('.navlist');
-        
+
         if (menuIcon && navList) {
             menuIcon.addEventListener('click', () => this.toggleMobileMenu());
         }
 
-        // Close mobile menu when clicking on links
-        const navLinks = document.querySelectorAll('.navlist a');
-        navLinks.forEach(link => {
+        document.querySelectorAll('.navlist a').forEach(link => {
             link.addEventListener('click', () => {
-                if (this.mobileMenuOpen) {
-                    this.closeMobileMenu();
-                }
+                if (this.mobileMenuOpen) this.closeMobileMenu();
             });
         });
 
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', (e) => {
-            if (this.mobileMenuOpen && 
-                !menuIcon.contains(e.target) && 
-                !navList.contains(e.target)) {
+        document.addEventListener('click', (event) => {
+            if (!this.mobileMenuOpen || !menuIcon || !navList) return;
+            if (!menuIcon.contains(event.target) && !navList.contains(event.target)) {
                 this.closeMobileMenu();
             }
         });
 
-        // Handle window resize
         window.addEventListener('resize', this.debounce(() => {
             if (window.innerWidth > 768 && this.mobileMenuOpen) {
                 this.closeMobileMenu();
             }
         }, 250));
 
-        // Handle scroll events
-        window.addEventListener('scroll', this.throttle(() => {
-            this.handleScroll();
-        }, 100));
+        window.addEventListener('scroll', this.throttle(() => this.handleScroll(), 100));
 
-        // Handle keyboard navigation
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.mobileMenuOpen) {
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && this.mobileMenuOpen) {
                 this.closeMobileMenu();
             }
         });
     }
 
-    toggleDarkMode() {
-        this.darkMode = !this.darkMode;
-        document.body.classList.toggle('dark', this.darkMode);
-        
-        const darkModeBtn = document.querySelector('#darkmode');
-        const logoImg = document.querySelector('.logo img');
-        const heroImg = document.querySelector('.hero-img img');
-        
-        if (darkModeBtn) {
-            darkModeBtn.classList.toggle('bx-moon', !this.darkMode);
-            darkModeBtn.classList.toggle('bx-sun', this.darkMode);
-        }
+    setFlavor(flavorName, animate = false) {
+        const nextFlavor = this.flavors.find(flavor => flavor.name === flavorName) || this.flavors[0];
+        this.currentFlavor = nextFlavor;
 
-        // Update images for dark mode
-        if (logoImg) {
-            logoImg.src = this.darkMode ? 'pic/Bared.png' : 'pic/SL.png';
-            logoImg.alt = this.darkMode ? 'Bared Dark Logo' : 'Bared Light Logo';
-        }
+        document.body.classList.remove('theme-raspberry', 'theme-mango', 'theme-peach');
+        document.body.classList.add(`theme-${nextFlavor.name}`);
 
-        if (heroImg) {
-            heroImg.src = this.darkMode ? 'pic/tot.png' : 'pic/p_and_p.png';
-            heroImg.alt = this.darkMode ? 'Dark Mode Hero Image' : 'Light Mode Hero Image';
-        }
+        const themeMeta = document.querySelector('meta[name="theme-color"]');
+        const tileMeta = document.querySelector('meta[name="msapplication-TileColor"]');
+        if (themeMeta) themeMeta.setAttribute('content', nextFlavor.themeColor);
+        if (tileMeta) tileMeta.setAttribute('content', nextFlavor.themeColor);
 
-        // Force image reload to ensure they display properly
-        this.forceImageReload();
-
-        // Save theme preference
-        this.saveTheme();
+        this.updateFlavorControls();
+        this.updateHeroFlavor(nextFlavor, animate);
     }
 
-    forceImageReload() {
-        // Force reload of all product images to ensure they display
-        const allImages = document.querySelectorAll('img');
-        allImages.forEach(img => {
-            const originalSrc = img.src;
-            img.src = '';
-            setTimeout(() => {
-                img.src = originalSrc;
-                img.classList.add('loaded');
-            }, 100);
+    updateFlavorControls() {
+        document.querySelectorAll('[data-flavor]').forEach(control => {
+            const isActive = control.dataset.flavor === this.currentFlavor.name;
+            control.classList.toggle('active', isActive);
+            control.setAttribute('aria-pressed', String(isActive));
         });
+    }
+
+    updateHeroFlavor(flavor, animate = false) {
+        const heroBottle = document.querySelector('.hero-bottle');
+        const heroFlavorName = document.querySelector('.hero-flavor-name');
+
+        const applyContent = () => {
+            if (heroBottle) {
+                heroBottle.src = flavor.heroImage;
+                heroBottle.alt = `${flavor.label} Bared ice tea bottle`;
+            }
+            if (heroFlavorName) {
+                heroFlavorName.textContent = flavor.label;
+            }
+        };
+
+        if (!animate || this.reduceMotion || typeof gsap === 'undefined' || !heroBottle) {
+            applyContent();
+            return;
+        }
+
+        gsap.to([heroBottle, heroFlavorName], {
+            y: 14,
+            autoAlpha: 0,
+            duration: 0.18,
+            ease: 'power2.in',
+            onComplete: () => {
+                applyContent();
+                gsap.fromTo([heroBottle, heroFlavorName],
+                    { y: -18, autoAlpha: 0, scale: 0.96 },
+                    { y: 0, autoAlpha: 1, scale: 1, duration: 0.52, stagger: 0.06, ease: 'back.out(1.7)' }
+                );
+            }
+        });
+    }
+
+    setColorMode(mode, animate = false) {
+        this.colorMode = mode === 'dark' ? 'dark' : 'light';
+        document.body.classList.toggle('mode-dark', this.colorMode === 'dark');
+        document.body.classList.toggle('mode-light', this.colorMode === 'light');
+        document.documentElement.style.colorScheme = this.colorMode;
+
+        const themeToggle = document.querySelector('#theme-toggle');
+        if (themeToggle) {
+            themeToggle.classList.toggle('bx-moon', this.colorMode === 'light');
+            themeToggle.classList.toggle('bx-sun', this.colorMode === 'dark');
+            themeToggle.setAttribute('aria-label', this.colorMode === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
+            themeToggle.setAttribute('title', this.colorMode === 'light' ? 'Dark mode' : 'Light mode');
+        }
+
+        if (animate && !this.reduceMotion && typeof gsap !== 'undefined') {
+            gsap.fromTo('body', { opacity: 0.92 }, { opacity: 1, duration: 0.24, ease: 'power2.out' });
+        }
     }
 
     toggleMobileMenu() {
         this.mobileMenuOpen = !this.mobileMenuOpen;
         const navList = document.querySelector('.navlist');
         const menuIcon = document.querySelector('#menu-icon');
-        
-        if (navList && menuIcon) {
-            navList.classList.toggle('open', this.mobileMenuOpen);
-            menuIcon.classList.toggle('bx-x', this.mobileMenuOpen);
-            menuIcon.setAttribute('aria-expanded', this.mobileMenuOpen);
-            
-            // Prevent body scroll when menu is open
-            document.body.style.overflow = this.mobileMenuOpen ? 'hidden' : '';
-        }
+
+        if (!navList || !menuIcon) return;
+
+        navList.classList.toggle('open', this.mobileMenuOpen);
+        menuIcon.classList.toggle('bx-x', this.mobileMenuOpen);
+        menuIcon.setAttribute('aria-expanded', String(this.mobileMenuOpen));
+        document.body.style.overflow = this.mobileMenuOpen ? 'hidden' : '';
     }
 
     closeMobileMenu() {
-        if (this.mobileMenuOpen) {
-            this.mobileMenuOpen = false;
-            const navList = document.querySelector('.navlist');
-            const menuIcon = document.querySelector('#menu-icon');
-            
-            if (navList && menuIcon) {
-                navList.classList.remove('open');
-                menuIcon.classList.remove('bx-x');
-                menuIcon.setAttribute('aria-expanded', 'false');
-                document.body.style.overflow = '';
-            }
-        }
+        if (!this.mobileMenuOpen) return;
+
+        this.mobileMenuOpen = false;
+        const navList = document.querySelector('.navlist');
+        const menuIcon = document.querySelector('#menu-icon');
+
+        if (!navList || !menuIcon) return;
+
+        navList.classList.remove('open');
+        menuIcon.classList.remove('bx-x');
+        menuIcon.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
     }
 
     handleScroll() {
         const header = document.querySelector('header');
-        const scrollY = window.scrollY;
-        
         if (header) {
-            if (scrollY > 100) {
-                header.style.background = this.darkMode 
-                    ? 'rgba(17, 24, 39, 0.98)' 
-                    : 'rgba(255, 255, 255, 0.98)';
-                header.style.backdropFilter = 'blur(20px)';
-    } else {
-                header.style.background = this.darkMode 
-                    ? 'rgba(17, 24, 39, 0.95)' 
-                    : 'rgba(255, 255, 255, 0.95)';
-                header.style.backdropFilter = 'blur(10px)';
-            }
+            header.classList.toggle('header-scrolled', window.scrollY > 80);
         }
     }
 
     setupSmoothScrolling() {
-        const links = document.querySelectorAll('a[href^="#"]');
-        
-        links.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
+        document.querySelectorAll('a[href^="#"]').forEach(link => {
+            link.addEventListener('click', (event) => {
                 const targetId = link.getAttribute('href');
-                const targetElement = document.querySelector(targetId);
-                
-                if (targetElement) {
-                    const headerHeight = document.querySelector('header').offsetHeight;
-                    const targetPosition = targetElement.offsetTop - headerHeight - 20;
-                    
-                    window.scrollTo({
-                        top: targetPosition,
-                        behavior: 'smooth'
-                    });
+
+                if (!targetId || targetId === '#') {
+                    event.preventDefault();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    return;
                 }
+
+                const targetElement = document.querySelector(targetId);
+                if (!targetElement) return;
+
+                event.preventDefault();
+                const header = document.querySelector('header');
+                const headerHeight = header ? header.offsetHeight : 0;
+                const targetPosition = targetElement.offsetTop - headerHeight - 20;
+
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
             });
         });
     }
 
     setupFormHandling() {
         const contactForm = document.querySelector('.contact-form');
-        
-        if (contactForm) {
-            contactForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.handleFormSubmission(contactForm);
-            });
+        if (!contactForm) return;
 
-            // Add real-time validation
-            const inputs = contactForm.querySelectorAll('input, textarea');
-            inputs.forEach(input => {
-                input.addEventListener('blur', () => this.validateField(input));
-                input.addEventListener('input', () => this.clearFieldError(input));
-            });
-        }
+        contactForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            this.handleFormSubmission(contactForm);
+        });
+
+        contactForm.querySelectorAll('input, textarea').forEach(input => {
+            input.addEventListener('blur', () => this.validateField(input));
+            input.addEventListener('input', () => this.clearFieldError(input));
+        });
     }
 
     handleFormSubmission(form) {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData);
-        
-        // Validate form
-        if (!this.validateForm(data)) {
-            return;
-        }
 
-        // Show loading state
+        if (!this.validateForm(data)) return;
+
         const submitBtn = form.querySelector('.submit-btn');
         const originalText = submitBtn.textContent;
         submitBtn.textContent = 'Sending...';
         submitBtn.disabled = true;
         form.classList.add('loading');
 
-        // Simulate form submission (replace with actual API call)
         setTimeout(() => {
             this.showNotification('Message sent successfully!', 'success');
             form.reset();
             submitBtn.textContent = originalText;
             submitBtn.disabled = false;
             form.classList.remove('loading');
-        }, 2000);
+        }, 900);
     }
 
     validateForm(data) {
         const errors = [];
-        
+
         if (!data.name || data.name.trim().length < 2) {
             errors.push('Name must be at least 2 characters long');
         }
-        
+
         if (!data.email || !this.isValidEmail(data.email)) {
             errors.push('Please enter a valid email address');
         }
-        
+
         if (!data.message || data.message.trim().length < 10) {
             errors.push('Message must be at least 10 characters long');
         }
@@ -253,83 +288,63 @@ class BaredWebsite {
             this.showNotification(errors.join(', '), 'error');
             return false;
         }
-        
+
         return true;
     }
 
     validateField(field) {
         const value = field.value.trim();
         const fieldName = field.name;
-        let isValid = true;
         let errorMessage = '';
 
-        switch (fieldName) {
-            case 'name':
-                if (value.length < 2) {
-                    isValid = false;
-                    errorMessage = 'Name must be at least 2 characters long';
-                }
-                break;
-            case 'email':
-                if (!this.isValidEmail(value)) {
-                    isValid = false;
-                    errorMessage = 'Please enter a valid email address';
-                }
-                break;
-            case 'message':
-                if (value.length < 10) {
-                    isValid = false;
-                    errorMessage = 'Message must be at least 10 characters long';
-                }
-                break;
+        if (fieldName === 'name' && value.length < 2) {
+            errorMessage = 'Name must be at least 2 characters long';
         }
 
-        if (!isValid) {
+        if (fieldName === 'email' && !this.isValidEmail(value)) {
+            errorMessage = 'Please enter a valid email address';
+        }
+
+        if (fieldName === 'message' && value.length < 10) {
+            errorMessage = 'Message must be at least 10 characters long';
+        }
+
+        if (errorMessage) {
             this.showFieldError(field, errorMessage);
-        } else {
-            this.clearFieldError(field);
+            return false;
         }
 
-        return isValid;
+        this.clearFieldError(field);
+        return true;
     }
 
     showFieldError(field, message) {
         this.clearFieldError(field);
-        
+
         const errorDiv = document.createElement('div');
         errorDiv.className = 'field-error';
         errorDiv.textContent = message;
-        errorDiv.style.color = '#ef4444';
-        errorDiv.style.fontSize = '0.875rem';
-        errorDiv.style.marginTop = '0.25rem';
-        
         field.style.borderColor = '#ef4444';
         field.parentNode.appendChild(errorDiv);
     }
 
     clearFieldError(field) {
         const existingError = field.parentNode.querySelector('.field-error');
-        if (existingError) {
-            existingError.remove();
-        }
+        if (existingError) existingError.remove();
         field.style.borderColor = '';
     }
 
     isValidEmail(email) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
 
     showNotification(message, type = 'info') {
-        // Remove existing notifications
-        const existingNotifications = document.querySelectorAll('.notification');
-        existingNotifications.forEach(notification => notification.remove());
+        document.querySelectorAll('.notification').forEach(notification => notification.remove());
 
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
         notification.textContent = message;
-        
-        // Style the notification
+
         Object.assign(notification.style, {
             position: 'fixed',
             top: '20px',
@@ -337,236 +352,129 @@ class BaredWebsite {
             padding: '12px 20px',
             borderRadius: '8px',
             color: 'white',
-            fontWeight: '500',
+            fontWeight: '600',
             zIndex: '9999',
             transform: 'translateX(100%)',
             transition: 'transform 0.3s ease',
-            backgroundColor: type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'
+            backgroundColor: type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : this.currentFlavor.themeColor
         });
 
         document.body.appendChild(notification);
 
-        // Animate in
-        setTimeout(() => {
+        requestAnimationFrame(() => {
             notification.style.transform = 'translateX(0)';
-        }, 100);
+        });
 
-        // Auto remove after 5 seconds
         setTimeout(() => {
             notification.style.transform = 'translateX(100%)';
             setTimeout(() => notification.remove(), 300);
-        }, 5000);
+        }, 4200);
     }
 
-    initializeScrollReveal() {
-        if (typeof ScrollReveal !== 'undefined') {
-            const sr = ScrollReveal({
-                distance: '30px',
-                duration: 800,
-                easing: 'ease-in-out',
-                reset: false,
-                mobile: true
-            });
+    setupGsapAnimations() {
+        if (this.reduceMotion || typeof gsap === 'undefined') return;
 
-            // Reveal elements with staggered timing
-            sr.reveal('.hero-text', { 
-                delay: 200, 
-                origin: 'left',
-                interval: 100
-            });
-            
-            sr.reveal('.hero-img', { 
-                delay: 400, 
-                origin: 'right' 
-            });
-            
-            sr.reveal('.box', { 
-                delay: 600, 
-                origin: 'bottom',
-                interval: 200
-            });
-            
-            sr.reveal('.about-text', { 
-                delay: 200, 
-                origin: 'left' 
-            });
-            
-            sr.reveal('.about-features', { 
-                delay: 400, 
-                origin: 'right' 
-            });
-            
-            sr.reveal('.product-card', { 
-                delay: 200, 
-                origin: 'bottom',
-                interval: 200
-            });
-            
-            sr.reveal('.contact-info', { 
-                delay: 200, 
-                origin: 'left' 
-            });
-            
-            sr.reveal('.contact-form', { 
-                delay: 400, 
-                origin: 'right' 
-            });
+        if (typeof ScrollTrigger !== 'undefined') {
+            gsap.registerPlugin(ScrollTrigger);
         }
-    }
 
-    setupIntersectionObserver() {
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
+        const heroTimeline = gsap.timeline({ defaults: { ease: 'power3.out' } });
+        heroTimeline
+            .from('.logo, .navlist li, .flavor-btn, .h-main > *', { y: -18, autoAlpha: 0, duration: 0.46, stagger: 0.04 })
+            .from('.hero-kicker', { y: 20, autoAlpha: 0, duration: 0.48 }, '-=0.18')
+            .from('.hero-text h1', { y: 46, autoAlpha: 0, duration: 0.72 }, '-=0.18')
+            .from('.hero-text h2, .hero-text p', { y: 26, autoAlpha: 0, duration: 0.54, stagger: 0.08 }, '-=0.34')
+            .from('.hero-actions > *', { y: 20, autoAlpha: 0, duration: 0.44, stagger: 0.06 }, '-=0.24')
+            .from('.box', { y: 26, autoAlpha: 0, scale: 0.96, duration: 0.5, stagger: 0.08 }, '-=0.22')
+            .from('.hero-bottle-stage', { y: 34, autoAlpha: 0, clipPath: 'inset(12% 0% 12% 0%)', duration: 0.7 }, '-=0.66')
+            .from('.hero-bottle', { y: 62, autoAlpha: 0, rotate: 4, scale: 0.9, duration: 0.78 }, '-=0.52')
+            .from('.hero-badge, .hero-flavor-name', { y: 16, autoAlpha: 0, duration: 0.42, stagger: 0.06 }, '-=0.32');
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate-in');
+        gsap.to('.hero-bottle', {
+            y: -14,
+            rotate: 1.4,
+            duration: 3,
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut'
+        });
+
+        if (typeof ScrollTrigger === 'undefined') return;
+
+        gsap.utils.toArray('.about-section, .products-section, .contact-section').forEach(section => {
+            const elements = section.querySelectorAll('h2, .about-text p, .feature, .product-card, .contact-item, .contact-form');
+            gsap.fromTo(elements,
+                { y: 30, autoAlpha: 0 },
+                {
+                    scrollTrigger: {
+                        trigger: section,
+                        start: 'top 78%',
+                        toggleActions: 'play none none none'
+                    },
+                    y: 0,
+                    autoAlpha: 1,
+                    duration: 0.52,
+                    stagger: 0.06,
+                    ease: 'power2.out',
+                    clearProps: 'opacity,visibility,transform'
                 }
-            });
-        }, observerOptions);
-
-        // Observe elements for animation
-        const animateElements = document.querySelectorAll('.feature, .product-card, .contact-item');
-        animateElements.forEach(el => observer.observe(el));
+            );
+        });
     }
 
-    loadTheme() {
-        const savedTheme = localStorage.getItem('bared-theme');
-        if (savedTheme === 'dark') {
-            this.darkMode = true;
-            document.body.classList.add('dark');
-            
-            const darkModeBtn = document.querySelector('#darkmode');
-            const logoImg = document.querySelector('.logo img');
-            const heroImg = document.querySelector('.hero-img img');
-            
-            if (darkModeBtn) {
-                darkModeBtn.classList.replace('bx-moon', 'bx-sun');
-            }
-            
-            if (logoImg) {
-                logoImg.src = 'pic/Bared.png';
-            }
-            
-            if (heroImg) {
-                heroImg.src = 'pic/tot.png';
-            }
-        }
-        
-        // Ensure dark mode button is visible
-        const darkModeBtn = document.querySelector('#darkmode');
-        if (darkModeBtn) {
-            darkModeBtn.style.display = 'block';
-            darkModeBtn.style.visibility = 'visible';
-        }
+    loadPreferences() {
+        const savedFlavor = localStorage.getItem('bared-flavor-theme') || 'raspberry';
+        const savedMode = localStorage.getItem('bared-color-mode') || 'light';
+        this.setFlavor(savedFlavor, false);
+        this.setColorMode(savedMode, false);
     }
 
-    saveTheme() {
-        localStorage.setItem('bared-theme', this.darkMode ? 'dark' : 'light');
+    savePreferences() {
+        localStorage.setItem('bared-flavor-theme', this.currentFlavor.name);
+        localStorage.setItem('bared-color-mode', this.colorMode);
     }
 
     setupImageLoading() {
-        const lazyImages = document.querySelectorAll('img[loading="lazy"]');
-        
-        if ('IntersectionObserver' in window) {
-            const imageObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        img.addEventListener('load', () => {
-                            img.classList.add('loaded');
-                        });
-                        imageObserver.unobserve(img);
-                    }
-                });
-            });
-
-            lazyImages.forEach(img => imageObserver.observe(img));
-        } else {
-            // Fallback for older browsers
-            lazyImages.forEach(img => {
-                img.addEventListener('load', () => {
-                    img.classList.add('loaded');
-                });
-            });
-        }
+        document.querySelectorAll('img[loading="lazy"]').forEach(img => {
+            if (img.complete) {
+                img.classList.add('loaded');
+            } else {
+                img.addEventListener('load', () => img.classList.add('loaded'), { once: true });
+            }
+        });
     }
 
     hideLoadingOverlay() {
         const loadingOverlay = document.getElementById('loading-overlay');
-        if (loadingOverlay) {
-            // Hide loading overlay after a short delay to ensure smooth transition
-            setTimeout(() => {
-                loadingOverlay.classList.add('hidden');
-                setTimeout(() => {
-                    loadingOverlay.remove();
-                }, 500);
-            }, 1000);
-        }
+        if (!loadingOverlay) return;
+
+        setTimeout(() => {
+            loadingOverlay.classList.add('hidden');
+            setTimeout(() => loadingOverlay.remove(), 500);
+        }, 450);
     }
 
-    // Utility functions
     debounce(func, wait) {
         let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
+        return (...args) => {
             clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
+            timeout = setTimeout(() => func(...args), wait);
         };
     }
 
     throttle(func, limit) {
         let inThrottle;
-        return function() {
-            const args = arguments;
-            const context = this;
-            if (!inThrottle) {
-                func.apply(context, args);
-                inThrottle = true;
-                setTimeout(() => inThrottle = false, limit);
-            }
+        return (...args) => {
+            if (inThrottle) return;
+            func(...args);
+            inThrottle = true;
+            setTimeout(() => {
+                inThrottle = false;
+            }, limit);
         };
     }
 }
 
-// Initialize the website when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     new BaredWebsite();
 });
-
-// Add CSS for animations
-const style = document.createElement('style');
-style.textContent = `
-    .animate-in {
-        animation: fadeInUp 0.6s ease-out forwards;
-    }
-    
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    .loading {
-        opacity: 0.6;
-        pointer-events: none;
-    }
-    
-    .field-error {
-        color: #ef4444;
-        font-size: 0.875rem;
-        margin-top: 0.25rem;
-    }
-`;
-document.head.appendChild(style);

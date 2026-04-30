@@ -18,10 +18,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="pic/SL.png">
     <link rel="apple-touch-icon" href="pic/SL.png">
-    <meta name="theme-color" content="#0ea5e9">
-    <meta name="msapplication-TileColor" content="#0ea5e9">
+    <meta name="theme-color" content="#d91f5c">
+    <meta name="msapplication-TileColor" content="#d91f5c">
 </head>
-<body>
+<body class="theme-raspberry mode-light">
 
 <!-- Loading Overlay -->
 <div class="loading-overlay" id="loading-overlay">
@@ -39,10 +39,15 @@
             <li role="none"> <a href="#products" role="menuitem">Products</a></li>
             <li role="none"> <a href="#contact" role="menuitem">Contact</a></li>
         </ul>
+        <div class="flavor-picker" aria-label="Drink color themes">
+            <button class="flavor-btn flavor-raspberry active" type="button" data-flavor="raspberry" aria-label="Raspberry and Pomegranate theme" aria-pressed="true"></button>
+            <button class="flavor-btn flavor-mango" type="button" data-flavor="mango" aria-label="Mango theme" aria-pressed="false"></button>
+            <button class="flavor-btn flavor-peach" type="button" data-flavor="peach" aria-label="Peach and Passion theme" aria-pressed="false"></button>
+        </div>
         <div class="h-main">
-            <a href="#buy" class="h-btn" role="button">Buy Now</a>
+            <a href="#products" class="h-btn" role="button">Buy Now</a>
             <button class="bx bx-menu" id='menu-icon' aria-label="Toggle menu" aria-expanded="false"></button>
-            <button class="bx bx-moon" id='darkmode' aria-label="Toggle dark mode"></button>
+            <button class="bx bx-moon" id="theme-toggle" aria-label="Switch to dark mode"></button>
         </div>
     </nav>
 </header>
@@ -50,32 +55,41 @@
 <main>
     <section id="home" class="hero" aria-labelledby="hero-title">
         <div class="hero-text">
-            <h1 id="hero-title">Bared</h1>
-            <h2>ICE TEA</h2>
-            <p>Premium cold tea, or iced tea, is a cooling and refreshing drink made by chilling brewed tea with ice, often customized to taste with natural flavors.</p>
+            <span class="hero-kicker">Fresh brewed. Served cold.</span>
+            <h1 id="hero-title">Bared Ice Tea</h1>
+            <h2>Three refreshing flavors, one clean finish.</h2>
+            <p>Premium iced tea crafted for bright fruit flavor, a crisp tea finish, and an easy chilled drink for any part of the day.</p>
+            <div class="hero-actions">
+                <a href="#products" class="hero-primary">Explore Flavors</a>
+                <a href="#contact" class="hero-secondary">Contact Us</a>
+            </div>
             <div class='hero-in' role="list" aria-label="Product flavors">
-                <article class="box" role="listitem">
+                <button class="box active" type="button" role="listitem" data-flavor="raspberry" aria-label="Use Raspberry and Pomegranate theme">
                     <h3>Raspberry and Pomegranate</h3>
                     <h4>Bared</h4>
                     <img src="pic/tot.png" alt="Raspberry and Pomegranate ice tea bottle" loading="lazy">
-                </article>
+                </button>
 
-                <article class="box" role="listitem">
+                <button class="box" type="button" role="listitem" data-flavor="mango" aria-label="Use Mango theme">
                     <h3>Mango</h3>
                     <h4>Bared</h4>
                     <img src="pic/mango.png" alt="Mango ice tea bottle" loading="lazy">
-                </article>
+                </button>
 
-                <article class="box" role="listitem">
+                <button class="box" type="button" role="listitem" data-flavor="peach" aria-label="Use Peach and Passion theme">
                     <h3>Peach and Passion</h3>
                     <h4>Bared</h4>
                     <img src="pic/p_and_p.png" alt="Peach and Passion ice tea bottle" loading="lazy">
-                </article>
+                </button>
             </div>
         </div>
         
-        <div class="hero-img">
-            <img src="pic/p_and_p.png" alt="Featured Bared ice tea bottle" loading="eager">
+        <div class="hero-showcase" aria-label="Featured Bared ice tea">
+            <div class="hero-bottle-stage">
+                <span class="hero-badge">1.50 OMR</span>
+                <img class="hero-bottle" src="pic/tot.png" alt="Featured Bared ice tea bottle" loading="eager">
+            </div>
+            <div class="hero-flavor-name">Raspberry & Pomegranate</div>
         </div>
     </section>
 
@@ -244,7 +258,8 @@
 
 
 
-    <script src="https://unpkg.com/scrollreveal"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script src="script.js"></script>
     
 </body>
